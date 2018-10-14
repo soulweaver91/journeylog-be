@@ -1,0 +1,5 @@
+django>=2.1
+python-decouple>=3.1
+dj-database-url>=0.5.0
+mysqlclient=1.3.12
+django-separatedvaluesfield>=0.4
