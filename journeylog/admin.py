@@ -79,7 +79,7 @@ class LocationNameAdmin(admin.ModelAdmin):
 
 class TagAdmin(HierarchicalModelAdmin):
     list_display = ('name', )
-    hierarchy = AdjacencyList('parent_tag')
+    hierarchy = AdjacencyList('parent')
 
     search_fields = ('name', )
 

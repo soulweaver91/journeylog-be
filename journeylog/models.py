@@ -55,7 +55,7 @@ class JournalPage(TemporalAwareModel):
     date_start = models.DateTimeField(blank=True, null=True)
     date_end = models.DateTimeField(blank=True, null=True)
 
-    journey = models.ForeignKey(Journey, on_delete=models.CASCADE)
+    journey = models.ForeignKey(Journey, on_delete=models.CASCADE, related_name='journal_pages')
 
     disabled_modules = SeparatedValuesField(max_length=255, token=',', cast=int, choices=PageModules, blank=True)
 
@@ -151,7 +151,7 @@ class LocationName(TemporalAwareModel):
     name = models.CharField(max_length=200)
     sort_key = models.CharField(max_length=200, blank=True, null=True)
 
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='names')
 
     class Meta:
         unique_together = (
@@ -193,7 +193,7 @@ class Photo(TemporalAwareModel):
 
     confidentiality = models.SmallIntegerField(default=0)
 
-    journey = models.ForeignKey(Journey, blank=True, null=True, on_delete=models.SET_NULL)
+    journey = models.ForeignKey(Journey, blank=True, null=True, on_delete=models.SET_NULL, related_name='photos')
 
     class Meta:
         ordering = ['timestamp', 'name']
@@ -204,7 +204,7 @@ class Photo(TemporalAwareModel):
 
 class Tag(TemporalAwareModel):
     name = models.CharField(max_length=200)
-    parent_tag = models.ForeignKey('Tag', blank=True, null=True, on_delete=models.SET_NULL)
+    parent = models.ForeignKey('Tag', blank=True, null=True, on_delete=models.SET_NULL, related_name='children')
 
     class Meta:
         ordering = ['name']
@@ -214,8 +214,8 @@ class Tag(TemporalAwareModel):
 
 
 class JourneyLocationVisit(TemporalAwareModel):
-    journey = models.ForeignKey(Journey, on_delete=models.CASCADE)
-    location = models.ForeignKey(Location, blank=True, null=True, on_delete=models.SET_NULL)
+    journey = models.ForeignKey(Journey, on_delete=models.CASCADE, related_name='location_visits')
+    location = models.ForeignKey(Location, blank=True, null=True, on_delete=models.SET_NULL, related_name='visits')
     timestamp = models.DateTimeField()
 
     class Meta:
@@ -226,7 +226,7 @@ class JourneyLocationVisit(TemporalAwareModel):
 
 
 class JourneyMapPointVisit(TemporalAwareModel):
-    journey = models.ForeignKey(Journey, on_delete=models.CASCADE)
+    journey = models.ForeignKey(Journey, on_delete=models.CASCADE, related_name='map_point_visits')
 
     # TODO: convert to GeoDjango later
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True)
