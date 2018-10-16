@@ -1,4 +1,3 @@
-from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
 from separatedvaluesfield.models import SeparatedValuesField
 
@@ -61,7 +60,7 @@ class JournalPage(TemporalAwareModel):
     disabled_modules = SeparatedValuesField(max_length=255, token=',', cast=int, choices=PageModules, blank=True)
 
     class Meta:
-        ordering = ['order_no', 'date_start']
+        ordering = ['journey', 'order_no', 'date_start']
 
     def __str__(self):
         return "{} - {} to {}: {}".format(
@@ -158,7 +157,7 @@ class LocationName(TemporalAwareModel):
         unique_together = (
             ('location', 'lang')
         )
-        ordering = ['location', 'name']
+        ordering = ['sort_key', 'location', 'name']
 
     def __str__(self):
         return "{} ({} in {})".format(self.name, self.location.name, self.lang)
@@ -223,7 +222,7 @@ class JourneyLocationVisit(TemporalAwareModel):
         ordering = ['timestamp']
 
     def __str__(self):
-        return "{} visited at {} during journey".format(self.location, self.timestamp, self.journey)
+        return "{} visit on {}".format(self.location, self.timestamp)
 
 
 class JourneyMapPointVisit(TemporalAwareModel):
@@ -239,7 +238,7 @@ class JourneyMapPointVisit(TemporalAwareModel):
         ordering = ['timestamp']
 
     def __str__(self):
-        return "{}, {} visited at {} during journey".format(self.latitude, self.longitude, self.timestamp, self.journey)
+        return "({}, {}) visit on {}".format(self.latitude, self.longitude, self.timestamp)
 
 
 """
