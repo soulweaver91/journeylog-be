@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=[], cast=lambda l: [item.strip() for item in l.split(',')])
 
 if DEBUG:
     INTERNAL_IPS = ['127.0.0.1', 'localhost']
