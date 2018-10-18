@@ -17,10 +17,14 @@ from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
+from .routers import root_router, journey_photos_router
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'^nested_admin/', include('nested_admin.urls'))
+    url(r'^nested_admin/', include('nested_admin.urls')),
+    url(r'^api-auth/', include('rest_framework.urls')),
+    url(r'^', include(root_router.urls)),
+    url(r'^', include(journey_photos_router.urls)),
 ]
 
 if settings.DEBUG:
