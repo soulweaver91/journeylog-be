@@ -1,3 +1,4 @@
+import humanize
 from django.db import models
 from separatedvaluesfield.models import SeparatedValuesField
 
@@ -194,6 +195,15 @@ class Photo(TemporalAwareModel):
     confidentiality = models.SmallIntegerField(default=0)
 
     journey = models.ForeignKey(Journey, blank=True, null=True, on_delete=models.SET_NULL, related_name='photos')
+
+    def dimensions(self):
+        return "{}×{}".format(self.width, self.height)
+
+    def filesize_natural(self):
+        return humanize.naturalsize(self.filesize, binary=True)
+
+    filesize_natural.admin_order_field = 'filesize'
+    filesize_natural.short_description = 'Natural filesize'
 
     class Meta:
         ordering = ['timestamp', 'name']

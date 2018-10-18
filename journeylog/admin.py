@@ -1,21 +1,8 @@
-import humanize
 from admirarchy.utils import HierarchicalModelAdmin, AdjacencyList
 from django.contrib import admin
 from nested_admin.nested import NestedTabularInline, NestedModelAdmin
 
 from .models import *
-
-
-def photo_dimensions(photo):
-    return "{}×{}".format(photo.width, photo.height)
-
-
-def photo_filesize(photo):
-    return humanize.naturalsize(photo.filesize, binary=True)
-
-
-photo_dimensions.short_description = "Dimensions"
-photo_filesize.short_description = "File size"
 
 
 class JourneyAdmin(admin.ModelAdmin):
@@ -42,7 +29,7 @@ class JournalPageAdmin(admin.ModelAdmin):
 
 
 class PhotoAdmin(admin.ModelAdmin):
-    list_display = ('name', 'timestamp', 'timezone', photo_dimensions, photo_filesize, 'journey')
+    list_display = ('name', 'timestamp', 'timezone', 'dimensions', 'filesize_natural', 'journey')
     list_filter = ('journey', )
     list_select_related = ('journey', )
 
