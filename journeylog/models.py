@@ -207,6 +207,9 @@ class Photo(TemporalAwareModel):
 
     class Meta:
         ordering = ['timestamp', 'name']
+        unique_together = (
+            ('journey', 'filename')
+        )
 
     def __str__(self):
         return self.name
