@@ -1,5 +1,6 @@
 from admirarchy.utils import HierarchicalModelAdmin, AdjacencyList
 from django.contrib import admin
+from django.utils.html import format_html
 from nested_admin.nested import NestedTabularInline, NestedModelAdmin
 
 from .models import *
@@ -28,10 +29,48 @@ class JournalPageAdmin(admin.ModelAdmin):
     autocomplete_fields = ['journey']
 
 
+class PrivateOrNotFilter(admin.SimpleListFilter):
+    title = "Confidentiality"
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'confidentiality'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('public', 'Public'),
+            ('private', 'Private'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'public':
+            return queryset.filter(confidentiality=0)
+        if self.value() == 'private':
+            return queryset.filter(confidentiality__gt=0)
+
+
 class PhotoAdmin(admin.ModelAdmin):
-    list_display = ('name', 'timestamp', 'timezone', 'dimensions', 'filesize_natural', 'journey')
-    list_filter = ('journey', )
+    class Media:
+        css = {
+            'all': ('css/photo_admin.css', )
+        }
+
+    def image_tag(self, photo):
+        return format_html('<div class="journeylog_photo-thumbnail-container">'
+                           '<div class="journeylog_photo-thumbnail" style="background-image: url({});"'
+                           '</div></div>'
+                           .format(photo.get_url_of_kind(None, 'thumb', for_admin=True)))
+    image_tag.short_description = ''
+
+    def is_confidential(self, photo):
+        return photo.confidentiality > 0
+    is_confidential.short_description = 'Private?'
+    is_confidential.boolean = True
+
+    list_display = ('image_tag', 'name', 'timestamp', 'timezone', 'dimensions', 'filesize_natural', 'journey',
+                    'is_confidential')
+    list_filter = ('journey', PrivateOrNotFilter)
     list_select_related = ('journey', )
+    list_display_links = ('image_tag', 'name')
 
     date_hierarchy = 'timestamp'
 

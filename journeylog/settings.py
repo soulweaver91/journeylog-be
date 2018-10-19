@@ -138,6 +138,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static", "admin"),
+]
+
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
@@ -156,4 +160,13 @@ REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': [
         'djangorestframework_camel_case.parser.CamelCaseJSONParser',
     ],
+}
+
+JOURNEYLOG = {
+    # No slash at the end required.
+    # Wherever this URL points to has to still use the same directory as this Django application under the wraps (i.e.
+    # be a web server on the same server the app runs on), or you must ensure files are automatically synced to the
+    # specified location yourself.
+    'EXTERNAL_PUBLIC_IMAGE_HOST_URL': config('EXTERNAL_PUBLIC_IMAGE_HOST_URL', default=None),
+    'PHOTO_THUMBNAIL_SIZE': 200,
 }

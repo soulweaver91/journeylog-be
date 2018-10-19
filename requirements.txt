@@ -13,3 +13,4 @@ djangorestframework>=3.8.2
 drf-nested-routers>=0.91
 markdown>=3.0.1
 djangorestframework-camel-case>=0.2.0
+pillow>=5.3.0

@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from rest_framework.fields import IntegerField, Field
+from rest_framework.fields import IntegerField, Field, SerializerMethodField
 from rest_framework.relations import HyperlinkedIdentityField
 from rest_framework.serializers import HyperlinkedModelSerializer, ModelSerializer
 
@@ -19,11 +19,24 @@ class JournalPageSerializer(HyperlinkedModelSerializer):
 
 
 class PhotoSerializer(ModelSerializer):
+    access_url = SerializerMethodField()
+    thumb_url = SerializerMethodField()
+
+    def get_access_url(self, obj):
+        user = self.context['request'].user
+
+        return obj.access_url(user)
+
+    def get_thumb_url(self, obj):
+        user = self.context['request'].user
+
+        return obj.thumb_url(user)
+
     class Meta:
         model = Photo
         fields = ('url', 'name', 'latitude', 'longitude', 'description', 'timestamp', 'timezone', 'filename',
                   'filesize', 'height', 'width', 'hash', 'camera_make', 'camera_model', 'focal_length', 'exposure',
-                  'iso_speed', 'f_value', 'flash_fired', 'flash_manual', 'confidentiality')
+                  'iso_speed', 'f_value', 'flash_fired', 'flash_manual', 'confidentiality', 'access_url', 'thumb_url')
 
 
 class JourneySerializer(HyperlinkedModelSerializer):

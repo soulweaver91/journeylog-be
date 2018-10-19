@@ -1,0 +1,25 @@
+#result_list tr td {
+	vertical-align: middle;
+}
+
+.journeylog_photo-thumbnail-container, .journeylog_photo-thumbnail-container a {
+	width: 50px;
+	height: 50px;
+	display: block;
+}
+
+.journeylog_photo-thumbnail {
+	width: 50px;
+	height: 50px;
+	background-position: center;
+	background-size: cover;
+	border: 1px solid #777;
+	position: absolute;
+}
+
+.journeylog_photo-thumbnail-container:hover .journeylog_photo-thumbnail {
+	transform: scale(4);
+	border-width: 0.25px;
+	z-index: 10;
+	pointer-events: none;
+}

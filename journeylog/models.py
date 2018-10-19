@@ -1,6 +1,12 @@
 import humanize
+import os
+
+from PIL import Image
+from django.conf import settings
 from django.db import models
 from separatedvaluesfield.models import SeparatedValuesField
+
+from .util.image import exif_rotate
 
 
 class TemporalAwareModel(models.Model):
@@ -165,6 +171,10 @@ class LocationName(TemporalAwareModel):
 
 
 class Photo(TemporalAwareModel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__old_confidentiality = self.confidentiality
+
     name = models.CharField(max_length=200)
 
     # TODO: convert to GeoDjango later
@@ -177,7 +187,7 @@ class Photo(TemporalAwareModel):
     timezone = models.CharField(max_length=50)
     timestamp = models.DateTimeField()
 
-    filename = models.TextField(editable=False)
+    filename = models.CharField(max_length=180, editable=False)
     filesize = models.BigIntegerField(editable=False)
     height = models.PositiveIntegerField(editable=False)
     width = models.PositiveIntegerField(editable=False)
@@ -201,6 +211,83 @@ class Photo(TemporalAwareModel):
 
     def filesize_natural(self):
         return humanize.naturalsize(self.filesize, binary=True)
+
+    def get_url_of_kind(self, user, kind, for_admin=False):
+        if self.confidentiality > 0 or for_admin:
+            if user or for_admin:
+                return '/image/private/{}/{}/{}?hash={}&refresh={}'.format(
+                    kind,
+                    self.journey_id,
+                    self.filename,
+                    self.hash,
+                    int(self.modified_at.timestamp())
+                )
+            else:
+                return None
+
+        return '{}/{}/{}/{}?refresh={}'.format(
+            settings.JOURNEYLOG['EXTERNAL_PUBLIC_IMAGE_HOST_URL'] or '/image/public',
+            kind,
+            self.journey_id,
+            self.filename,
+            int(self.modified_at.timestamp())
+        )
+
+    def access_url(self, user=None):
+        return self.get_url_of_kind(user, 'photo')
+
+    def thumb_url(self, user=None):
+        return self.get_url_of_kind(user, 'thumb')
+
+    def get_storage_file_path(self, kind, confidentiality=None):
+        if confidentiality is None:
+            confidentiality = self.confidentiality
+
+        visibility = 'private' if confidentiality > 0 else 'public'
+
+        return os.path.join(settings.BASE_DIR, 'storage', visibility, kind, str(self.journey_id),
+                            self.filename + ('.th.jpg' if kind == 'thumb' else ''))
+
+    def ensure_thumb(self):
+        photo_path = self.get_storage_file_path('photo')
+        thumb_path = self.get_storage_file_path('thumb')
+
+        if not os.path.exists(thumb_path) or os.stat(thumb_path).st_mtime < self.modified_at.timestamp():
+            thumb_path_dir = os.path.dirname(thumb_path)
+            os.makedirs(thumb_path_dir, exist_ok=True)
+
+            thumb_size = settings.JOURNEYLOG['PHOTO_THUMBNAIL_SIZE'] or 200
+            ratio = max(thumb_size / self.width, thumb_size / self.height)
+
+            im = Image.open(photo_path)
+            im = exif_rotate(im)
+            im.thumbnail(
+                (self.width * ratio, self.height * ratio), Image.LANCZOS
+            )
+            im.save(thumb_path, 'jpeg', optimize=True, quality=85)
+
+    def move_storage_file(self, kind):
+        # TODO: figure out details regarding import later (the old path is not either private or public)
+        old_path = self.get_storage_file_path(kind, confidentiality=self.__old_confidentiality)
+        new_path = self.get_storage_file_path(kind)
+        new_path_dir = os.path.dirname(new_path)
+
+        if not os.path.exists(old_path):
+            return
+
+        os.makedirs(new_path_dir, exist_ok=True)
+        os.rename(old_path, new_path)
+
+    def save(self, *args, **kwargs):
+        if self.confidentiality != self.__old_confidentiality:
+            try:
+                self.move_storage_file('photo')
+                self.move_storage_file('thumb')
+
+            except IOError:
+                return
+
+        super().save(*args, **kwargs)
 
     filesize_natural.admin_order_field = 'filesize'
     filesize_natural.short_description = 'Natural filesize'
