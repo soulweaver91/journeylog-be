@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'nested_admin',
     'admirarchy',
     'rest_framework',
-    'django_filters'
+    'django_filters',
+    'corsheaders',
 ]
 
 if DEBUG:
@@ -54,6 +55,7 @@ if DEBUG:
     ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -170,3 +172,5 @@ JOURNEYLOG = {
     'EXTERNAL_PUBLIC_IMAGE_HOST_URL': config('EXTERNAL_PUBLIC_IMAGE_HOST_URL', default=None),
     'PHOTO_THUMBNAIL_SIZE': 200,
 }
+
+CORS_ORIGIN_WHITELIST = config('CORS_ORIGIN', default=[], cast=lambda l: [item.strip() for item in l.split(',')])

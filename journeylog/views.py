@@ -1,5 +1,4 @@
-import os
-
+import rest_framework
 from django.conf import settings
 from django.contrib.auth.models import User
 
@@ -8,7 +7,9 @@ from django.db.models import Count
 from django.http import FileResponse, HttpResponseNotFound
 from rest_framework import mixins
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet, ViewSet
 
 from .filters import PhotoFilter
 from .models import Journey, Photo, Location
@@ -55,6 +56,17 @@ class LocationViewSet(ReadOnlyViewSet):
 class JourneyPhotoViewSet(PhotoViewSet):
     def get_queryset(self):
         return Photo.objects.filter(journey=self.kwargs['journey_pk'])
+
+
+class ServerInformationViewSet(ViewSet):
+    permission_classes = [AllowAny]
+
+    def list(self, request, format=None):
+        return Response({
+            "online": True,
+            "version": "0.1.0",
+            # TODO: include last Git branch and commit hash somehow
+        })
 
 
 def photo_file_view(request, visibility, kind, journey_id, file):
