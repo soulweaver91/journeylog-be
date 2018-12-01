@@ -9,6 +9,8 @@ Requirements
 
 - Python 3
 - A supported database, PostgreSQL or MySQL/MariaDB are safe bets
+  - `pip install psycopg2` for PostgreSQL
+  - `pip install mysqlclient` for MySQL
 - `pip install -r requirements.txt`
 - Apache, nginx, etc. running on the same server (for image hosting etc.)
 
