@@ -78,10 +78,15 @@ class PhotoLiteSerializer(ModelSerializer):
 class JournalPageSerializer(HyperlinkedModelSerializer):
     photos = PhotoLiteSerializer(many=True)
     photos_count = IntegerField()
+    disabled_modules = SerializerMethodField()
+
+    def get_disabled_modules(self, obj):
+        return [] if obj.disabled_modules is None else obj.disabled_modules
 
     class Meta:
         model = JournalPage
-        fields = ('slug', 'name', 'order_no', 'type', 'text', 'date_start', 'date_end', 'photos', 'photos_count')
+        fields = ('slug', 'name', 'order_no', 'type', 'text', 'date_start', 'date_end', 'photos', 'photos_count',
+                  'disabled_modules')
 
 
 class JourneyJournalPageSerializer(FixedNestedHyperlinkedModelSerializer):
