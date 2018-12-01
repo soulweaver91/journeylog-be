@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from rest_framework.fields import IntegerField, Field, SerializerMethodField
+from rest_framework.fields import IntegerField, Field, SerializerMethodField, FloatField
 from rest_framework.relations import HyperlinkedIdentityField
 from rest_framework.serializers import HyperlinkedModelSerializer, ModelSerializer
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
@@ -26,6 +26,9 @@ class UserSerializer(HyperlinkedModelSerializer):
 class PhotoSerializer(ModelSerializer):
     access_url = SerializerMethodField()
     thumb_url = SerializerMethodField()
+    journey_slug = SerializerMethodField()
+    latitude = FloatField()
+    longitude = FloatField()
 
     def get_access_url(self, obj):
         user = self.context['request'].user
@@ -36,16 +39,22 @@ class PhotoSerializer(ModelSerializer):
         user = self.context['request'].user
 
         return obj.thumb_url(user)
+
+    def get_journey_slug(self, obj):
+        return obj.journey.slug
 
     class Meta:
         model = Photo
-        fields = ('url', 'name', 'latitude', 'longitude', 'description', 'timestamp', 'timezone', 'filename',
+        fields = ('url', 'id', 'name', 'latitude', 'longitude', 'description', 'timestamp', 'timezone', 'filename',
                   'filesize', 'height', 'width', 'hash', 'camera_make', 'camera_model', 'focal_length', 'exposure',
-                  'iso_speed', 'f_value', 'flash_fired', 'flash_manual', 'confidentiality', 'access_url', 'thumb_url')
+                  'iso_speed', 'f_value', 'flash_fired', 'flash_manual', 'confidentiality', 'access_url', 'thumb_url',
+                  'journey_slug')
 
 
 class PhotoLiteSerializer(ModelSerializer):
+    access_url = SerializerMethodField()
     thumb_url = SerializerMethodField()
+    journey_slug = SerializerMethodField()
 
     def get_access_url(self, obj):
         user = self.context['request'].user
@@ -56,11 +65,14 @@ class PhotoLiteSerializer(ModelSerializer):
         user = self.context['request'].user
 
         return obj.thumb_url(user)
+
+    def get_journey_slug(self, obj):
+        return obj.journey.slug
 
     class Meta:
         model = Photo
         fields = ('url', 'name', 'timestamp', 'timezone', 'filename', 'filesize', 'height', 'width',
-                  'hash', 'confidentiality', 'access_url', 'thumb_url')
+                  'hash', 'confidentiality', 'access_url', 'thumb_url', 'journey_slug')
 
 
 class JournalPageSerializer(HyperlinkedModelSerializer):

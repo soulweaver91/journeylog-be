@@ -60,6 +60,9 @@ class LocationViewSet(ReadOnlyViewSet):
 
 
 class JourneyPhotoViewSet(PhotoViewSet):
+    lookup_field = 'filename'
+    lookup_value_regex = '[^/]+'
+
     def get_queryset(self):
         return Photo.objects.filter(journey__slug=self.kwargs['journey_slug'])
 
