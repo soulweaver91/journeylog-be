@@ -205,8 +205,8 @@ class Photo(TemporalAwareModel):
     name = models.CharField(max_length=200)
 
     # TODO: convert to GeoDjango later
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
 
     description = models.TextField(blank=True)
 
