@@ -5,7 +5,9 @@ from django.contrib.auth.models import User
 # Create your views here.
 from django.db.models import Count
 from django.http import FileResponse, HttpResponseNotFound, HttpResponseForbidden, JsonResponse
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -23,6 +25,18 @@ class ReadOnlyViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericV
 class PhotoPagination(PageNumberPagination):
     page_size = 50
     page_size_query_param = None
+
+    def get_paginated_response(self, data):
+        return Response({
+            'links': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
+            },
+            'count': self.page.paginator.count,
+            'perPage': self.page_size,
+            'totalPages': self.page.paginator.num_pages,
+            'results': data
+        })
 
 
 class UserViewSet(ReadOnlyViewSet):
@@ -47,6 +61,9 @@ class PhotoViewSet(ReadOnlyViewSet):
     serializer_class = PhotoSerializer
     pagination_class = PhotoPagination
     filterset_class = PhotoFilter
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    search_fields = ('filename', 'name', 'description')
+    ordering_fields = ('timestamp', 'filesize', 'filename', 'name')
 
 
 class JournalPageViewSet(ReadOnlyViewSet):
