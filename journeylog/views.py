@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 # Create your views here.
 from django.db.models import Count
-from django.http import FileResponse, HttpResponseNotFound
+from django.http import FileResponse, HttpResponseNotFound, HttpResponseForbidden, JsonResponse
 from rest_framework import mixins
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
@@ -103,3 +103,22 @@ def photo_file_view(request, visibility, kind, journey_id, file):
         return FileResponse(open(file_path, 'rb'))
     except IOError:
         return HttpResponseNotFound()
+
+
+def generate_missing_thumbs_view(request):
+    if request.user.is_staff:
+        photos = Photo.objects.all()
+
+        count = 0
+
+        for photo in photos:
+            path = photo.ensure_thumb()
+            if path is not True:
+                count = count + 1
+
+        return JsonResponse({
+            "status": "OK",
+            "generated": count
+        })
+    else:
+        return HttpResponseForbidden()

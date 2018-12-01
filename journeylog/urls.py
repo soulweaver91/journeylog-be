@@ -19,7 +19,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from .routers import root_router, journey_router
-from .views import photo_file_view
+from .views import photo_file_view, generate_missing_thumbs_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls')),
     url(r'^image/(?P<visibility>(private|public))/(?P<kind>(photo|thumb))/(?P<journey_id>\d+)/(?P<file>.+)',
         photo_file_view),
+    url(r'^maintenance/generate-thumbs', generate_missing_thumbs_view),
     url(r'^', include(root_router.urls)),
     url(r'^', include(journey_router.urls)),
 ]

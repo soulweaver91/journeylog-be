@@ -8,6 +8,9 @@ def exif_rotate(image):
     else:
         return image
 
+    if not hasattr(image, '_getexif'):
+        return image
+
     # noinspection PyProtectedMember
     exif = image._getexif()
     if exif is None:

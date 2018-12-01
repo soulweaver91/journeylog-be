@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 import humanize
 import os
 
@@ -7,8 +5,11 @@ from PIL import Image
 from django.conf import settings
 from django.db import models
 from separatedvaluesfield.models import SeparatedValuesField
+from datetime import timedelta
 
 from .util.image import exif_rotate
+
+THUMBNAIL_EXTENSION = '.th.jpg'
 
 
 class TemporalAwareModel(models.Model):
@@ -245,17 +246,19 @@ class Photo(TemporalAwareModel):
                     kind,
                     self.journey_id,
                     self.filename,
+                    # thumbnail extension is added by the backend endpoint
                     self.hash,
                     int(self.modified_at.timestamp())
                 )
             else:
                 return None
 
-        return '{}/{}/{}/{}?refresh={}'.format(
+        return '{}/{}/{}/{}{}?refresh={}'.format(
             settings.JOURNEYLOG['EXTERNAL_PUBLIC_IMAGE_HOST_URL'] or '/image/public',
             kind,
             self.journey_id,
             self.filename,
+            THUMBNAIL_EXTENSION if kind == 'thumb' else '',
             int(self.modified_at.timestamp())
         )
 
@@ -272,7 +275,7 @@ class Photo(TemporalAwareModel):
         visibility = 'private' if confidentiality > 0 else 'public'
 
         return os.path.join(settings.BASE_DIR, 'storage', visibility, kind, str(self.journey_id),
-                            self.filename + ('.th.jpg' if kind == 'thumb' else ''))
+                            self.filename + (THUMBNAIL_EXTENSION if kind == 'thumb' else ''))
 
     def ensure_thumb(self):
         photo_path = self.get_storage_file_path('photo')
@@ -291,6 +294,10 @@ class Photo(TemporalAwareModel):
                 (self.width * ratio, self.height * ratio), Image.LANCZOS
             )
             im.save(thumb_path, 'jpeg', optimize=True, quality=85)
+
+            return thumb_path
+
+        return True
 
     def move_storage_file(self, kind):
         # TODO: figure out details regarding import later (the old path is not either private or public)
