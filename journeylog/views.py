@@ -12,8 +12,8 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ViewSet
 
 from .filters import PhotoFilter
-from .models import Journey, Photo, Location
-from .serializers import UserSerializer, JourneySerializer, PhotoSerializer, LocationSerializer
+from .models import Journey, Photo, Location, JournalPage
+from .serializers import UserSerializer, JourneySerializer, PhotoSerializer, LocationSerializer, JournalPageSerializer
 
 
 class ReadOnlyViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
@@ -33,12 +33,13 @@ class UserViewSet(ReadOnlyViewSet):
 class JourneyViewSet(ReadOnlyViewSet):
     queryset = (
         Journey.objects
-            .prefetch_related('journal_pages')
+            .prefetch_related('journal_pages', 'photos')
             .annotate(
             journal_pages_count=Count('journal_pages', distinct=True),
             photos_count=Count('photos', distinct=True),
         ))
     serializer_class = JourneySerializer
+    lookup_field = 'slug'
 
 
 class PhotoViewSet(ReadOnlyViewSet):
@@ -48,6 +49,11 @@ class PhotoViewSet(ReadOnlyViewSet):
     filterset_class = PhotoFilter
 
 
+class JournalPageViewSet(ReadOnlyViewSet):
+    queryset = JournalPage.objects.all()
+    serializer_class = JournalPageSerializer
+
+
 class LocationViewSet(ReadOnlyViewSet):
     queryset = Location.objects.prefetch_related('names').all()
     serializer_class = LocationSerializer
@@ -55,7 +61,14 @@ class LocationViewSet(ReadOnlyViewSet):
 
 class JourneyPhotoViewSet(PhotoViewSet):
     def get_queryset(self):
-        return Photo.objects.filter(journey=self.kwargs['journey_pk'])
+        return Photo.objects.filter(journey__slug=self.kwargs['journey_slug'])
+
+
+class JourneyJournalPageViewSet(JournalPageViewSet):
+    lookup_field = 'slug'
+
+    def get_queryset(self):
+        return JournalPage.objects.filter(journey__slug=self.kwargs['journey_slug'])
 
 
 class ServerInformationViewSet(ViewSet):

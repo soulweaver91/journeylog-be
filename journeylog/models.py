@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import humanize
 import os
 
@@ -66,6 +68,29 @@ class JournalPage(TemporalAwareModel):
     journey = models.ForeignKey(Journey, on_delete=models.CASCADE, related_name='journal_pages')
 
     disabled_modules = SeparatedValuesField(max_length=255, token=',', cast=int, choices=PageModules, blank=True)
+
+    def photos(self):
+        if self.date_start is None and self.date_end is None:
+            if self.type == JournalPage.REGULAR:
+                return self.journey.photos.all()
+            else:
+                return Photo.objects.none()
+
+        query_args = {}
+        if self.date_start is not None:
+            query_args['timestamp__gte'] = self.date_start
+            if self.date_end is not None:
+                query_args['timestamp__lt'] = self.date_end
+            else:
+                query_args['timestamp__lt'] = self.date_start + timedelta(days=1)
+        else:
+            query_args['timestamp__lt'] = self.date_end
+
+        # TODO: try to find a way to optimize this
+        return self.journey.photos.all().filter(**query_args)
+
+    def photos_count(self):
+        return self.photos().count()
 
     class Meta:
         ordering = ['journey', 'order_no', 'date_start']
