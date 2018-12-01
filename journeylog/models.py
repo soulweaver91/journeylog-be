@@ -58,6 +58,7 @@ class JournalPage(TemporalAwareModel):
     name = models.CharField(max_length=100, blank=True)
     order_no = models.SmallIntegerField(default=0)
     text = models.TextField(blank=True)
+    type = models.CharField(max_length=100, choices=PageTypes, default=REGULAR)
 
     date_start = models.DateTimeField(blank=True, null=True)
     date_end = models.DateTimeField(blank=True, null=True)
