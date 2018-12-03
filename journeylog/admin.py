@@ -6,7 +6,19 @@ from nested_admin.nested import NestedTabularInline, NestedModelAdmin
 from .models import *
 
 
-class JourneyAdmin(admin.ModelAdmin):
+class JourneyLocationVisitInline(NestedTabularInline):
+    readonly_fields = ('id', )
+    autocomplete_fields = ('location', )
+    fields = ('id', 'location', 'timestamp')
+    model = JourneyLocationVisit
+    extra = 5
+
+
+class JourneyAdmin(NestedModelAdmin):
+    inlines = [
+        JourneyLocationVisitInline
+    ]
+
     list_display = ('name', 'date_start', 'date_end')
 
     prepopulated_fields = {

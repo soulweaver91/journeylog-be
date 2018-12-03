@@ -13,9 +13,10 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ViewSet
 
-from .filters import PhotoFilter
-from .models import Journey, Photo, Location, JournalPage
-from .serializers import UserSerializer, JourneySerializer, PhotoSerializer, LocationSerializer, JournalPageSerializer
+from .filters import PhotoFilter, LocationFilter
+from .models import Journey, Photo, Location, JournalPage, JourneyLocationVisit
+from .serializers import UserSerializer, JourneySerializer, PhotoSerializer, LocationSerializer, JournalPageSerializer, \
+    LocationVisitSerializer
 
 
 class ReadOnlyViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
@@ -74,6 +75,8 @@ class JournalPageViewSet(ReadOnlyViewSet):
 class LocationViewSet(ReadOnlyViewSet):
     queryset = Location.objects.prefetch_related('names').all()
     serializer_class = LocationSerializer
+    filterset_class = LocationFilter
+    filter_backends = (DjangoFilterBackend, )
 
 
 class JourneyPhotoViewSet(PhotoViewSet):
@@ -82,6 +85,11 @@ class JourneyPhotoViewSet(PhotoViewSet):
 
     def get_queryset(self):
         return Photo.objects.filter(journey__slug=self.kwargs['journey_slug'])
+
+
+class JourneyLocationVisitViewSet(ReadOnlyViewSet):
+    queryset = JourneyLocationVisit.objects.all()
+    serializer_class = LocationVisitSerializer
 
 
 class JourneyJournalPageViewSet(JournalPageViewSet):

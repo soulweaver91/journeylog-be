@@ -1,10 +1,10 @@
 from django.contrib.auth.models import User
 from rest_framework.fields import IntegerField, Field, SerializerMethodField, FloatField
-from rest_framework.relations import HyperlinkedIdentityField
+from rest_framework.relations import HyperlinkedIdentityField, PrimaryKeyRelatedField
 from rest_framework.serializers import HyperlinkedModelSerializer, ModelSerializer
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 
-from .models import JournalPage, Photo, Journey, Location
+from .models import JournalPage, Photo, Journey, Location, JourneyLocationVisit
 
 
 # https://github.com/alanjds/drf-nested-routers/issues/119
@@ -21,6 +21,23 @@ class UserSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('url', 'username', 'email', 'is_staff')
+
+
+# noinspection PyAbstractClass
+class LocationNameDictSerializer(Field):
+    def to_representation(self, instance):
+        return {n.lang: {
+            'name': n.name,
+            'sort_key': n.sort_key
+        } for n in instance.all()}
+
+
+class LocationSerializer(ModelSerializer):
+    names = LocationNameDictSerializer()
+
+    class Meta:
+        model = Location
+        fields = ('url', 'id', 'name', 'latitude', 'longitude', 'color', 'type', 'names')
 
 
 class PhotoSerializer(ModelSerializer):
@@ -75,6 +92,14 @@ class PhotoLiteSerializer(ModelSerializer):
                   'hash', 'confidentiality', 'access_url', 'thumb_url', 'journey_slug')
 
 
+class LocationVisitSerializer(ModelSerializer):
+    location = PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = JourneyLocationVisit
+        fields = ('id', 'location', 'timestamp')
+
+
 class JournalPageSerializer(HyperlinkedModelSerializer):
     photos = PhotoLiteSerializer(many=True)
     photos_count = IntegerField()
@@ -112,32 +137,21 @@ class JourneySerializer(HyperlinkedModelSerializer):
         lookup_field='slug'
     )
 
+    location_visits = HyperlinkedIdentityField(
+        view_name='journey-location-visits-list',
+        lookup_url_kwarg='journey_slug',
+        lookup_field='slug'
+    )
+
     journal_pages_count = IntegerField()
     photos_count = IntegerField()
 
     class Meta:
         model = Journey
         fields = ('url', 'id', 'name', 'slug', 'date_start', 'date_end', 'description', 'background',
-                  'journal_pages', 'journal_pages_count', 'photos', 'photos_count')
+                  'journal_pages', 'journal_pages_count', 'photos', 'photos_count', 'location_visits')
         lookup_field = 'slug'
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
         }
-
-
-# noinspection PyAbstractClass
-class LocationNameDictSerializer(Field):
-    def to_representation(self, instance):
-        return {n.lang: {
-            'name': n.name,
-            'sort_key': n.sort_key
-        } for n in instance.all()}
-
-
-class LocationSerializer(ModelSerializer):
-    names = LocationNameDictSerializer()
-
-    class Meta:
-        model = Location
-        fields = ('url', 'id', 'name', 'latitude', 'longitude', 'color', 'type', 'names')
 
