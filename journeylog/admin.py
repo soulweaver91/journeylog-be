@@ -91,7 +91,7 @@ class LocationAdmin(NestedModelAdmin):
     list_display = ('name', 'type')
     list_filter = ['type']
 
-    search_fields = ('name', 'locationname__name')
+    search_fields = ('name', 'names__name')
 
 
 class LocationNameAdmin(admin.ModelAdmin):
