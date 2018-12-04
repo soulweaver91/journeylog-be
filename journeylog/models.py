@@ -31,7 +31,6 @@ class Journey(TemporalAwareModel):
     slug = models.SlugField(unique=True, max_length=100)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    background_old = models.CharField(blank=True, max_length=240)
     background = models.ImageField(upload_to=journey_background_image_path, blank=True, max_length=240)
 
     date_start = models.DateTimeField(blank=True, null=True)
