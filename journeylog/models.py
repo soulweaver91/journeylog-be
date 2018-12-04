@@ -66,6 +66,12 @@ class JournalPage(TemporalAwareModel):
     date_start = models.DateTimeField(blank=True, null=True)
     date_end = models.DateTimeField(blank=True, null=True)
 
+    def effective_date_end(self):
+        if self.date_start and not self.date_end:
+            return self.date_start + timedelta(days=1) - timedelta(seconds=1)
+        else:
+            return self.date_end
+
     journey = models.ForeignKey(Journey, on_delete=models.CASCADE, related_name='journal_pages')
 
     disabled_modules = SeparatedValuesField(max_length=255, token=',', cast=int, choices=PageModules, blank=True)
@@ -80,12 +86,9 @@ class JournalPage(TemporalAwareModel):
         query_args = {}
         if self.date_start is not None:
             query_args['timestamp__gte'] = self.date_start
-            if self.date_end is not None:
-                query_args['timestamp__lt'] = self.date_end
-            else:
-                query_args['timestamp__lt'] = self.date_start + timedelta(days=1)
+            query_args['timestamp__lte'] = self.effective_date_end()
         else:
-            query_args['timestamp__lt'] = self.date_end
+            query_args['timestamp__lte'] = self.date_end
 
         # TODO: try to find a way to optimize this
         return self.journey.photos.all().filter(**query_args)
