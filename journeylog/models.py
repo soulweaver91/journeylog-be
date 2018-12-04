@@ -1,13 +1,16 @@
+from datetime import timedelta
 import humanize
+import logging
 import os
 
 from PIL import Image
 from django.conf import settings
 from django.db import models
 from separatedvaluesfield.models import SeparatedValuesField
-from datetime import timedelta
 
 from .util.image import exif_rotate
+
+logger = logging.getLogger(__name__)
 
 THUMBNAIL_EXTENSION = '.th.jpg'
 
@@ -20,17 +23,32 @@ class TemporalAwareModel(models.Model):
         abstract = True
 
 
+def journey_background_image_path(journey, filename):
+    return 'public/cover/{}_{}'.format(journey.id, filename)
+
+
 class Journey(TemporalAwareModel):
     slug = models.SlugField(unique=True, max_length=100)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    background = models.CharField(blank=True, max_length=240)
+    background_old = models.CharField(blank=True, max_length=240)
+    background = models.ImageField(upload_to=journey_background_image_path, blank=True, max_length=240)
 
     date_start = models.DateTimeField(blank=True, null=True)
     date_end = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         ordering = ['date_start', 'name']
+
+    def save(self, *args, **kwargs):
+        try:
+            this = Journey.objects.get(id=self.id)
+            if this.background != self.background:
+                this.background.delete(save=False)
+        except:
+            logger.warning(r"Couldn't remove the old cover image of a journey.", exc_info=1)
+
+        super(Journey, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -256,8 +274,8 @@ class Photo(TemporalAwareModel):
             else:
                 return None
 
-        return '{}/{}/{}/{}{}?refresh={}'.format(
-            settings.JOURNEYLOG['EXTERNAL_PUBLIC_IMAGE_HOST_URL'] or '/image/public',
+        return '{}{}/{}/{}{}?refresh={}'.format(
+            settings.JOURNEYLOG['EXTERNAL_PUBLIC_IMAGE_HOST_URL'] or '/image/public/',
             kind,
             self.journey_id,
             self.filename,

@@ -144,6 +144,12 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static", "admin"),
 ]
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'storage')
+
+MEDIA_URL = config('EXTERNAL_PUBLIC_IMAGE_HOST_URL', default=None)
+
+DEFAULT_FILE_STORAGE = 'journeylog.storage.JourneyLogDefaultStorage'
+
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
