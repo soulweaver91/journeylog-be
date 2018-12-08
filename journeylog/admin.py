@@ -1,9 +1,44 @@
 from admirarchy.utils import HierarchicalModelAdmin, AdjacencyList
 from django.contrib import admin
 from django.utils.html import format_html
+from import_export.admin import ImportExportMixin
 from nested_admin.nested import NestedTabularInline, NestedModelAdmin
 
 from .models import *
+
+
+class LocationResource(resources.ModelResource):
+    class Meta:
+        model = Location
+        fields = ('id', 'name', 'type', 'latitude', 'longitude', 'color')
+
+
+class LocationNameResource(resources.ModelResource):
+    class Meta:
+        model = LocationName
+        fields = ('location', 'lang', 'name', 'sort_key')
+        import_id_fields = ('location', 'lang')
+
+
+class JourneyLocationVisitResource(resources.ModelResource):
+    def get_instance(self, instance_loader, row):
+        print(instance_loader, row)
+        return False
+
+    class Meta:
+        model = JourneyLocationVisit
+        fields = ('journey', 'location', 'timestamp')
+        import_id_fields = ()
+
+
+class JourneyMapPointVisitResource(resources.ModelResource):
+    def get_instance(self, instance_loader, row):
+        return False
+
+    class Meta:
+        model = JourneyMapPointVisit
+        fields = ('journey', 'latitude', 'longitude', 'timestamp')
+        import_id_fields = ()
 
 
 class JourneyLocationVisitInline(NestedTabularInline):
@@ -95,7 +130,7 @@ class LocationNameInline(NestedTabularInline):
     extra = 1
 
 
-class LocationAdmin(NestedModelAdmin):
+class LocationAdmin(ImportExportMixin, NestedModelAdmin):
     inlines = [
         LocationNameInline
     ]
@@ -105,14 +140,18 @@ class LocationAdmin(NestedModelAdmin):
 
     search_fields = ('name', 'names__name')
 
+    resource_class = LocationResource
 
-class LocationNameAdmin(admin.ModelAdmin):
+
+class LocationNameAdmin(ImportExportMixin, admin.ModelAdmin):
     list_display = ('name', 'location', 'lang', 'sort_key')
     list_editable = ['sort_key']
 
     list_filter = ['lang']
 
     search_fields = ('name', 'sort_key', 'location__name')
+
+    resource_class = LocationNameResource
 
 
 class TagAdmin(HierarchicalModelAdmin):
@@ -122,7 +161,7 @@ class TagAdmin(HierarchicalModelAdmin):
     search_fields = ('name', )
 
 
-class JourneyLocationVisitAdmin(admin.ModelAdmin):
+class JourneyLocationVisitAdmin(ImportExportMixin, admin.ModelAdmin):
     list_display = ('timestamp', 'location', 'journey')
     list_filter = ('journey', )
     list_select_related = ('journey', 'location')
@@ -130,14 +169,18 @@ class JourneyLocationVisitAdmin(admin.ModelAdmin):
     search_fields = ('journey__name', 'location__name')
     autocomplete_fields = ['journey', 'location']
 
+    resource_class = JourneyLocationVisitResource
 
-class JourneyMapPointVisitAdmin(admin.ModelAdmin):
+
+class JourneyMapPointVisitAdmin(ImportExportMixin, admin.ModelAdmin):
     list_display = ('timestamp', 'latitude', 'longitude', 'journey')
     list_filter = ('journey', )
     list_select_related = ('journey', )
 
     search_fields = ('journey__name', )
     autocomplete_fields = ['journey']
+
+    resource_class = JourneyMapPointVisitResource
 
 
 admin.site.register(Journey, JourneyAdmin)

@@ -6,6 +6,7 @@ import os
 from PIL import Image
 from django.conf import settings
 from django.db import models
+from import_export import resources
 from separatedvaluesfield.models import SeparatedValuesField
 
 from .util.image import exif_rotate
@@ -406,3 +407,4 @@ class TransportationLineStop(models.Model):
 class JourneyTransportationLineVisit(models.Model):
     pass
 """
+
