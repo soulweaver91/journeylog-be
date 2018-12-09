@@ -111,8 +111,7 @@ class ServerInformationViewSet(ViewSet):
 
 
 def photo_file_view(request, visibility, kind, journey_id, file):
-    print(visibility, kind, journey_id, file)
-    if visibility == 'private' and request.user is None:
+    if visibility == 'private' and not request.user.is_authenticated:
         return HttpResponseNotFound()
 
     photo = Photo.objects.filter(journey_id=journey_id, filename=file).first()
