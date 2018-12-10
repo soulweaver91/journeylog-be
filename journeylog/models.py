@@ -6,9 +6,8 @@ import os
 from PIL import Image
 from django.conf import settings
 from django.db import models
-from import_export import resources
-from separatedvaluesfield.models import SeparatedValuesField
 
+from .util.model import FixedSeparatedValuesField
 from .util.image import exif_rotate
 
 logger = logging.getLogger(__name__)
@@ -92,7 +91,7 @@ class JournalPage(TemporalAwareModel):
 
     journey = models.ForeignKey(Journey, on_delete=models.CASCADE, related_name='journal_pages')
 
-    disabled_modules = SeparatedValuesField(max_length=255, token=',', cast=int, choices=PageModules, blank=True)
+    disabled_modules = FixedSeparatedValuesField(max_length=255, token=',', cast=int, choices=PageModules, blank=True)
 
     def photos(self):
         if self.date_start is None and self.date_end is None:

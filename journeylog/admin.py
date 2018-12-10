@@ -1,6 +1,7 @@
 from admirarchy.utils import HierarchicalModelAdmin, AdjacencyList
 from django.contrib import admin
 from django.utils.html import format_html
+from import_export import resources
 from import_export.admin import ImportExportMixin
 from nested_admin.nested import NestedTabularInline, NestedModelAdmin
 
