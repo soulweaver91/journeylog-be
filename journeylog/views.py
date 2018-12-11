@@ -88,8 +88,10 @@ class JourneyPhotoViewSet(PhotoViewSet):
 
 
 class JourneyLocationVisitViewSet(ReadOnlyViewSet):
-    queryset = JourneyLocationVisit.objects.all()
     serializer_class = LocationVisitSerializer
+
+    def get_queryset(self):
+        return JourneyLocationVisit.objects.filter(journey__slug=self.kwargs['journey_slug'])
 
 
 class JourneyJournalPageViewSet(JournalPageViewSet):
