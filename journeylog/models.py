@@ -127,54 +127,88 @@ class JournalPage(TemporalAwareModel):
 
 class Location(TemporalAwareModel):
     AIRPORT = 'AIRPORT'
+    AMUSEMENT_PARK = 'AMUSEMENT_PARK'
     ARCADE = 'ARCADE'
+    BAR = 'BAR'
+    BEACH = 'BEACH'
+    BICYCLING = 'BICYCLING'
     BUILDING = 'BUILDING'
     BUS_STATION = 'BUS_STATION'
     CAFE = 'CAFE'
+    CAMPING = 'CAMPING'
+    CHURCH = 'CHURCH'
+    ESCAPE_ROOM = 'ESCAPE_ROOM'
+    GAS_STATION = 'GAS_STATION'
     HOME = 'HOME'
+    HOSPITAL = 'HOSPITAL'
     HOTEL = 'HOTEL'
     INFO_CENTER = 'INFO_CENTER'
     KARAOKE = 'KARAOKE'
+    MARKETPLACE = 'MARKETPLACE'
     MONUMENT = 'MONUMENT'
+    MOVIE_THEATER = 'MOVIE_THEATER'
     MUSEUM = 'MUSEUM'
     ONBOARD_AIRPLANE = 'ONBOARD_AIRPLANE'
     ONBOARD_BUS = 'ONBOARD_BUS'
     ONBOARD_SHIP = 'ONBOARD_SHIP'
+    ONBOARD_TAXI = 'ONBOARD_TAXI'
     PARK = 'PARK'
     PLACE = 'PLACE'
     RAILWAY_STATION = 'RAILWAY_STATION'
     RESTAURANT = 'RESTAURANT'
+    SPA = 'SPA'
     SHOP = 'SHOP'
     SHRINE = 'SHRINE'
+    SHIP_TERMINAL = 'SHIP_TERMINAL'
+    SPORTS_CENTER = 'SPORTS_CENTER'
     SUBWAY_STATION = 'SUBWAY_STATION'
+    THEATER = 'THEATER'
+    ZOO = 'ZOO'
 
     LocationTypes = (
         ('Buildings', (
             (ARCADE, 'Arcade hall'),
+            (BAR, 'Bar'),
             (CAFE, 'Café'),
+            (CHURCH, 'Church'),
+            (ESCAPE_ROOM, 'Escape room'),
+            (GAS_STATION, 'Gas station'),
+            (HOSPITAL, 'Hospital'),
             (HOTEL, 'Hotel'),
             (INFO_CENTER, 'Information center'),
             (KARAOKE, 'Karaoke'),
+            (MOVIE_THEATER, 'Movie theater'),
             (MUSEUM, 'Museum'),
             (RESTAURANT, 'Restaurant'),
+            (SPA, 'Spa'),
             (SHOP, 'Shop'),
+            (THEATER, 'Theater'),
         )),
         ('Points of interest', (
+            (AMUSEMENT_PARK, 'Amusement park'),
+            (BEACH, 'Beach'),
+            (CAMPING, 'Camping grounds'),
+            (MARKETPLACE, 'Marketplace'),
             (MONUMENT, 'Monument'),
             (MUSEUM, 'Museum'),
             (PARK, 'Park'),
             (SHRINE, 'Shrine'),
+            (SPORTS_CENTER, 'Sports center'),
+            (ZOO, 'Zoo')
         )),
         ('Transit points', (
             (AIRPORT, 'Airport'),
             (BUS_STATION, 'Bus station'),
             (RAILWAY_STATION, 'Railway station'),
+            (SHIP_TERMINAL, 'Ship or ferry terminal'),
             (SUBWAY_STATION, 'Subway station'),
         )),
         ('Traveling', (
             (ONBOARD_AIRPLANE, 'On an airplane'),
             (ONBOARD_BUS, 'On a bus'),
             (ONBOARD_SHIP, 'On a ship'),
+            (ONBOARD_TAXI, 'In a taxi'),
+            (BICYCLING, 'Riding a bicycle'),
         )),
         ('Other', (
             (HOME, 'Home'),
