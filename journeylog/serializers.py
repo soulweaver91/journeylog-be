@@ -105,6 +105,8 @@ class JournalPageSerializer(HyperlinkedModelSerializer):
     photos_count = IntegerField()
     disabled_modules = SerializerMethodField()
     date_end = SerializerMethodField()
+    timezone_start = SerializerMethodField()
+    timezone_end = SerializerMethodField()
 
     def get_disabled_modules(self, obj):
         return [] if obj.disabled_modules is None else obj.disabled_modules
@@ -112,25 +114,40 @@ class JournalPageSerializer(HyperlinkedModelSerializer):
     def get_date_end(self, obj):
         return obj.effective_date_end()
 
+    def get_timezone_start(self, obj):
+        return obj.effective_timezone_start()
+
+    def get_timezone_end(self, obj):
+        return obj.effective_timezone_end()
+
     class Meta:
         model = JournalPage
-        fields = ('slug', 'name', 'order_no', 'type', 'text', 'date_start', 'date_end', 'photos', 'photos_count',
-                  'disabled_modules')
+        fields = ('slug', 'name', 'order_no', 'type', 'text', 'date_start', 'date_end', 'timezone_start',
+                  'timezone_end', 'photos', 'photos_count', 'disabled_modules')
 
 
 class JourneyJournalPageSerializer(FixedNestedHyperlinkedModelSerializer):
     url_view_name = 'journey-journal-pages-detail'
     parent_lookup_kwargs = {'journey_slug': 'journey__slug'}
     date_end = SerializerMethodField()
+    timezone_start = SerializerMethodField()
+    timezone_end = SerializerMethodField()
 
     photos_count = IntegerField()
 
     def get_date_end(self, obj):
         return obj.effective_date_end()
 
+    def get_timezone_start(self, obj):
+        return obj.effective_timezone_start()
+
+    def get_timezone_end(self, obj):
+        return obj.effective_timezone_end()
+
     class Meta:
         model = JournalPage
-        fields = ('url', 'slug', 'name', 'order_no', 'type', 'date_start', 'date_end', 'photos_count')
+        fields = ('url', 'slug', 'name', 'order_no', 'type', 'date_start', 'date_end', 'timezone_start',
+                  'timezone_end', 'photos_count')
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
         }

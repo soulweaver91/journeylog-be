@@ -82,12 +82,23 @@ class JournalPage(TemporalAwareModel):
 
     date_start = models.DateTimeField(blank=True, null=True)
     date_end = models.DateTimeField(blank=True, null=True)
+    timezone_start = models.CharField(max_length=50, blank=True, null=True)
+    timezone_end = models.CharField(max_length=50, blank=True, null=True)
 
     def effective_date_end(self):
         if self.date_start and not self.date_end:
             return self.date_start + timedelta(days=1) - timedelta(seconds=1)
         else:
             return self.date_end
+
+    def effective_timezone_start(self):
+        return self.timezone_start if self.timezone_start else 'UTC'
+
+    def effective_timezone_end(self):
+        if self.date_end is None:
+            return self.effective_timezone_start()
+
+        return self.timezone_end if self.timezone_end else 'UTC'
 
     journey = models.ForeignKey(Journey, on_delete=models.CASCADE, related_name='journal_pages')
 
