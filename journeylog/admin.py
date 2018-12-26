@@ -99,7 +99,7 @@ class PrivateOrNotFilter(admin.SimpleListFilter):
 class PhotoAdmin(admin.ModelAdmin):
     class Media:
         css = {
-            'all': ('css/photo_admin.css', )
+            'all': ('journeylog-admin/css/photo_admin.css', )
         }
 
     def image_tag(self, photo):
