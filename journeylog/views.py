@@ -52,6 +52,7 @@ class JourneyViewSet(ReadOnlyViewSet):
             .annotate(
             journal_pages_count=Count('journal_pages', distinct=True),
             photos_count=Count('photos', distinct=True),
+            visited_locations_count=Count('location_visits__location', distinct=True),
         ))
     serializer_class = JourneySerializer
     lookup_field = 'slug'
