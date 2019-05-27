@@ -9,6 +9,7 @@ from django.db import models
 
 from .util.model import FixedSeparatedValuesField
 from .util.image import exif_rotate
+from .validators import validate_language_code_list, validate_language_code
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,8 @@ class Journey(TemporalAwareModel):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     background = models.ImageField(upload_to=journey_background_image_path, blank=True, max_length=240)
+    languages = models.CharField(max_length=200, validators=[validate_language_code_list], blank=True,
+                                 help_text="A comma-separated list of locale codes like en_GB. Use proper casing.")
 
     date_start = models.DateTimeField(blank=True, null=True)
     date_end = models.DateTimeField(blank=True, null=True)
@@ -246,7 +249,7 @@ class Location(TemporalAwareModel):
 
 
 class LocationName(TemporalAwareModel):
-    lang = models.CharField(max_length=10)
+    lang = models.CharField(max_length=10, validators=[validate_language_code])
     name = models.CharField(max_length=200)
     sort_key = models.CharField(max_length=200, blank=True, null=True)
 

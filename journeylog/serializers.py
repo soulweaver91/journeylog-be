@@ -171,9 +171,14 @@ class JourneySerializer(HyperlinkedModelSerializer):
     journal_pages_count = IntegerField()
     photos_count = IntegerField()
 
+    languages = SerializerMethodField()
+
+    def get_languages(self, obj):
+        return [] if obj.languages == '' else obj.languages.split(',')
+
     class Meta:
         model = Journey
-        fields = ('url', 'id', 'name', 'slug', 'date_start', 'date_end', 'description', 'background',
+        fields = ('url', 'id', 'name', 'slug', 'date_start', 'date_end', 'description', 'background', 'languages',
                   'journal_pages', 'journal_pages_count', 'photos', 'photos_count', 'location_visits')
         lookup_field = 'slug'
         extra_kwargs = {
