@@ -104,7 +104,7 @@ class PhotoAdmin(admin.ModelAdmin):
 
     def image_tag(self, photo):
         return format_html('<div class="journeylog_photo-thumbnail-container">'
-                           '<div class="journeylog_photo-thumbnail" style="background-image: url({});"'
+                           '<div class="journeylog_photo-thumbnail" style="background-image: url(\'{}\');"'
                            '</div></div>'
                            .format(photo.get_url_of_kind(None, 'thumb', for_admin=True)))
     image_tag.short_description = ''
