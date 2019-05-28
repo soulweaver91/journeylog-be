@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 # Create your views here.
-from django.db.models import Count
+from django.db.models import Count, Subquery, OuterRef
 from django.http import FileResponse, HttpResponseNotFound, HttpResponseForbidden, JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins
@@ -46,13 +46,16 @@ class UserViewSet(ReadOnlyViewSet):
 
 
 class JourneyViewSet(ReadOnlyViewSet):
+    sq_base = Journey.objects.filter(id=OuterRef('pk')).order_by()
+    pages_sq = sq_base.annotate(c=Count('journal_pages')).values('c')
+    photos_sq = sq_base.annotate(c=Count('photos')).values('c')
+    locations_sq = sq_base.annotate(c=Count('location_visits__location', distinct=True)).values('c')
+
     queryset = (
-        Journey.objects
-            .prefetch_related('journal_pages', 'photos')
-            .annotate(
-            journal_pages_count=Count('journal_pages', distinct=True),
-            photos_count=Count('photos', distinct=True),
-            visited_locations_count=Count('location_visits__location', distinct=True),
+        Journey.objects.prefetch_related('journal_pages', 'photos', 'location_visits').annotate(
+            journal_pages_count=Subquery(pages_sq),
+            photos_count=Subquery(photos_sq),
+            visited_locations_count=Subquery(locations_sq),
         ))
     serializer_class = JourneySerializer
     lookup_field = 'slug'
@@ -77,7 +80,7 @@ class LocationViewSet(ReadOnlyViewSet):
     queryset = Location.objects.prefetch_related('names').all()
     serializer_class = LocationSerializer
     filterset_class = LocationFilter
-    filter_backends = (DjangoFilterBackend, )
+    filter_backends = (DjangoFilterBackend,)
 
 
 class JourneyPhotoViewSet(PhotoViewSet):

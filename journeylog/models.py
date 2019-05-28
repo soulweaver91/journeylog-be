@@ -110,22 +110,24 @@ class JournalPage(TemporalAwareModel):
     def photos(self):
         if self.date_start is None and self.date_end is None:
             if self.type == JournalPage.REGULAR:
-                return self.journey.photos.all()
+                return list(self.journey.photos.all())
             else:
-                return Photo.objects.none()
+                return []
 
-        query_args = {}
         if self.date_start is not None:
-            query_args['timestamp__gte'] = self.date_start
-            query_args['timestamp__lte'] = self.effective_date_end()
+            timestamp_gte = self.date_start
+            timestamp_lte = self.effective_date_end()
         else:
-            query_args['timestamp__lte'] = self.date_end
+            timestamp_gte = float('-inf')
+            timestamp_lte = self.date_end
 
-        # TODO: try to find a way to optimize this
-        return self.journey.photos.all().filter(**query_args)
+        print(timestamp_lte)
+        print(timestamp_gte)
+        return [photo for photo in self.journey.photos.all()
+                if timestamp_gte <= photo.timestamp <= timestamp_lte]
 
     def photos_count(self):
-        return self.photos().count()
+        return len(self.photos())
 
     class Meta:
         ordering = ['journey', 'order_no', 'date_start']
