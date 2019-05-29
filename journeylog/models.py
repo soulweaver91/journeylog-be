@@ -121,8 +121,6 @@ class JournalPage(TemporalAwareModel):
             timestamp_gte = float('-inf')
             timestamp_lte = self.date_end
 
-        print(timestamp_lte)
-        print(timestamp_gte)
         return [photo for photo in self.journey.photos.all()
                 if timestamp_gte <= photo.timestamp <= timestamp_lte]
 
