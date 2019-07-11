@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'import_export',
+    'constance',
+    'constance.backends.database',
 ]
 
 if DEBUG:
@@ -181,3 +183,10 @@ JOURNEYLOG = {
 }
 
 CORS_ORIGIN_WHITELIST = config('CORS_ORIGIN', default=[], cast=lambda l: [item.strip() for item in l.split(',')])
+
+CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
+
+CONSTANCE_CONFIG = {
+    'HOME_TIMEZONE': ("Etc/UTC", 'The timezone that home times should be shown in in the UI.', str),
+    'EXPOSE_GPS': (True, 'Include GPS information for photos', bool)
+}

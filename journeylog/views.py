@@ -1,6 +1,7 @@
 import rest_framework
 from django.conf import settings
 from django.contrib.auth.models import User
+from constance import config
 
 # Create your views here.
 from django.db.models import Count, Subquery, OuterRef
@@ -112,6 +113,9 @@ class ServerInformationViewSet(ViewSet):
         return Response({
             "online": True,
             "version": "0.1.0",
+            "settings": {
+                "HOME_TIMEZONE": config.HOME_TIMEZONE
+            }
             # TODO: include last Git branch and commit hash somehow
         })
 

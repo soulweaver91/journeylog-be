@@ -1,4 +1,6 @@
 from django.contrib.auth.models import User
+from constance import config
+
 from rest_framework.fields import IntegerField, Field, SerializerMethodField, FloatField
 from rest_framework.relations import HyperlinkedIdentityField, PrimaryKeyRelatedField
 from rest_framework.serializers import HyperlinkedModelSerializer, ModelSerializer
@@ -44,8 +46,8 @@ class PhotoSerializer(ModelSerializer):
     access_url = SerializerMethodField()
     thumb_url = SerializerMethodField()
     journey_slug = SerializerMethodField()
-    latitude = FloatField()
-    longitude = FloatField()
+    latitude = SerializerMethodField()
+    longitude = SerializerMethodField()
 
     def get_access_url(self, obj):
         user = self.context['request'].user
@@ -59,6 +61,18 @@ class PhotoSerializer(ModelSerializer):
 
     def get_journey_slug(self, obj):
         return obj.journey.slug
+
+    def get_latitude(self, obj):
+        if config.EXPOSE_GPS:
+            return obj.latitude
+
+        return None
+
+    def get_longitude(self, obj):
+        if config.EXPOSE_GPS:
+            return obj.longitude
+
+        return None
 
     class Meta:
         model = Photo
