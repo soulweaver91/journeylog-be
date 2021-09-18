@@ -9,7 +9,7 @@ Requirements
 
 - Python 3
 - A supported database, PostgreSQL or MySQL/MariaDB are safe bets
-  - `pip install psycopg2 --no-binary psycopg2` for PostgreSQL
+  - `pip install psycopg2==2.8.6` for PostgreSQL
   - `pip install mysqlclient` for MySQL
 - `pip install -r requirements.txt`
 - Apache or other WSGI compatible server software running on the server
