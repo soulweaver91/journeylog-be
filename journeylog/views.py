@@ -63,13 +63,20 @@ class JourneyViewSet(ReadOnlyViewSet):
 
 
 class PhotoViewSet(ReadOnlyViewSet):
-    queryset = Photo.objects.all()
+    queryset = Photo.objects.select_related('journey')
     serializer_class = PhotoSerializer
     pagination_class = PhotoPagination
     filterset_class = PhotoFilter
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     search_fields = ('filename', 'name', 'description')
     ordering_fields = ('timestamp', 'filesize', 'filename', 'name')
+
+    def get_serializer_context(self):
+        context = super(PhotoViewSet, self).get_serializer_context()
+        context.update({
+            'EXPOSE_GPS': config.EXPOSE_GPS
+        })
+        return context
 
 
 class JournalPageViewSet(ReadOnlyViewSet):
@@ -89,21 +96,21 @@ class JourneyPhotoViewSet(PhotoViewSet):
     lookup_value_regex = '[^/]+'
 
     def get_queryset(self):
-        return Photo.objects.filter(journey__slug=self.kwargs['journey_slug'])
+        return Photo.objects.select_related('journey').filter(journey__slug=self.kwargs['journey_slug'])
 
 
 class JourneyLocationVisitViewSet(ReadOnlyViewSet):
     serializer_class = LocationVisitSerializer
 
     def get_queryset(self):
-        return JourneyLocationVisit.objects.filter(journey__slug=self.kwargs['journey_slug'])
+        return JourneyLocationVisit.objects.select_related('journey').filter(journey__slug=self.kwargs['journey_slug'])
 
 
 class JourneyJournalPageViewSet(JournalPageViewSet):
     lookup_field = 'slug'
 
     def get_queryset(self):
-        return JournalPage.objects.filter(journey__slug=self.kwargs['journey_slug'])
+        return JournalPage.objects.select_related('journey').filter(journey__slug=self.kwargs['journey_slug'])
 
 
 class ServerInformationViewSet(ViewSet):

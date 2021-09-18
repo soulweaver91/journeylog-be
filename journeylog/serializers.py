@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from constance import config
 
 from rest_framework.fields import IntegerField, Field, SerializerMethodField, FloatField
 from rest_framework.relations import HyperlinkedIdentityField, PrimaryKeyRelatedField
@@ -63,14 +62,20 @@ class PhotoSerializer(ModelSerializer):
         return obj.journey.slug
 
     def get_latitude(self, obj):
-        if config.EXPOSE_GPS:
-            return obj.latitude
+        try:
+            if self.context['EXPOSE_GPS']:
+                return obj.latitude
+        except KeyError:
+            return None
 
         return None
 
     def get_longitude(self, obj):
-        if config.EXPOSE_GPS:
-            return obj.longitude
+        try:
+            if self.context['EXPOSE_GPS']:
+                return obj.longitude
+        except KeyError:
+            return None
 
         return None
 
